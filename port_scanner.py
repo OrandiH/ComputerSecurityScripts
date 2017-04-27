@@ -7,18 +7,19 @@ import datetime
 import time
 import argparse
 import os
+import nmap
 
 check = 0
 os.system('clear')
 line = "-" * 80
-desc = line +'''\nA Simple port scanner in python\n''' + line +"\n"
+desc = line +'''\nA Simple port scanner in python\n''' + line + "\n"
 
 parser = argparse.ArgumentParser(description = desc, formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('host', metavar='H', help='Host name you want to scan')
 parser.add_argument('startport', metavar='P1', nargs='?', help='Start scanning from this port')
 parser.add_argument('endport', metavar='P2', nargs='?', help='Scan until this port')
 args = parser.parse_args()
-
+nm = nmap.PortScanner()
 host = args.host
 ip = socket.gethostbyname(host)
 
@@ -114,6 +115,7 @@ try:
             if not Port == endport:
                 sys.stdout.write('\b' * len(str(Port)))
     print "\nScanning completed at %s" % (time.strftime("%I:%M:%S %p"))
+    nm.scan(host, arguments='-O')
     end_Time = time.time()
     total_time = end_Time - start_Time
     print "=" * 40
@@ -136,6 +138,10 @@ try:
             print "\t%s %s: Open" % (i, service)
     else:
         print "Sorry, No open ports found!"
+    print "Possible OS Version of host %s" % (host)
+    for osmatch in nm[host]['osmatch']:
+        print('Os name : {0}'.format(osmatch['name']))
+        print('')
 except KeyboardInterrupt:
     print "You pressed Ctrl + C. Exiting"
     sys.exit(1)
